@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StudySprint — Your exam, mapped out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #241220;
+    --panel: #341A38;
+    --panel-light: #402044;
+    --lime: #E8B84B;
+    --coral: #D9756B;
+    --mint: #8FAE8B;
+    --amber: #D9A441;
+    --paper: #F3EAE4;
+    --muted: #B39CB0;
+    --line: rgba(245, 243, 237, 0.1);
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(232, 184, 75, 0.10), transparent 60%),
+      radial-gradient(700px 500px at -10% 20%, rgba(217, 117, 107, 0.08), transparent 55%),
+      var(--ink);
+    background-attachment: fixed;
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .display {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  a { color: inherit; }
+
+  /* ---------- Layout shell ---------- */
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 24px 0;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .brand .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--lime);
+    box-shadow: 0 0 12px var(--lime);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  .top-meta {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 56px 0 20px;
+    position: relative;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--lime);
+    background: rgba(232, 184, 75, 0.08);
+    border: 1px solid rgba(232, 184, 75, 0.25);
+    padding: 5px 12px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: clamp(34px, 5.5vw, 54px);
+    line-height: 1.05;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(100deg, var(--lime), #F2D48A 60%, var(--lime));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero p.sub {
+    color: var(--muted);
+    font-size: 17px;
+    max-width: 520px;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ---------- Track line motif ---------- */
+  .track-line {
+    position: absolute;
+    right: -40px;
+    top: 30px;
+    width: 260px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  @media (max-width: 780px) {
+    .track-line { display: none; }
+  }
+
+  /* ---------- Form card ---------- */
+  .card {
+    background: linear-gradient(180deg, var(--panel-light), var(--panel));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-top: 36px;
+    box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+
+  .card h2 {
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+
+  .card .hint {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 24px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 560px) {
+    .field-row { grid-template-columns: 1fr; }
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  input[type="date"],
+  input[type="number"],
+  input[type="text"] {
+    width: 100%;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    color: var(--paper);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  input:hover {
+    border-color: rgba(232, 184, 75, 0.4);
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--lime);
+    box-shadow: 0 0 0 3px rgba(232, 184, 75, 0.15);
+  }
+
+  /* ---------- Topics list ---------- */
+  .topics-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0 12px;
+  }
+
+  .topics-head label { margin: 0; }
+
+  .add-btn {
+    background: none;
+    border: 1px dashed var(--muted);
+    color: var(--muted);
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s ease;
+  }
+
+  .add-btn:hover {
+    border-color: var(--lime);
+    color: var(--lime);
+  }
+
+  .topic-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 6px;
+    border-radius: 12px;
+    transition: background 0.15s ease;
+  }
+
+  .topic-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .conf-select {
+    display: flex;
+    gap: 4px;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 3px;
+  }
+
+  .conf-btn {
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .conf-btn[data-active="true"][data-level="weak"] { background: rgba(217,117,107,0.18); color: var(--coral); }
+  .conf-btn[data-active="true"][data-level="medium"] { background: rgba(217,164,65,0.18); color: var(--amber); }
+  .conf-btn[data-active="true"][data-level="strong"] { background: rgba(143,174,139,0.18); color: var(--mint); }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .remove-btn:hover { background: rgba(217,117,107,0.15); color: var(--coral); }
+
+  .generate-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--lime), #F2D48A);
+    color: var(--ink);
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .generate-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(232, 184, 75, 0.35);
+  }
+
+  .generate-btn:active {
+    transform: translateY(0);
+  }
+
+  .generate-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .error-box {
+    background: rgba(217, 117, 107, 0.1);
+    border: 1px solid rgba(217, 117, 107, 0.3);
+    color: var(--coral);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-top: 16px;
+    display: none;
+  }
+
+  /* ---------- Results / track view ---------- */
+  #results { margin-top: 48px; display: none; }
+
+  .results-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .results-head h2 { margin: 0; font-size: 24px; }
+
+  .summary-line {
+    color: var(--mint);
+    font-size: 14px;
+    margin: 6px 0 28px;
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 8px;
+    background: var(--panel-light);
+    border-radius: 100px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--lime), var(--mint));
+    border-radius: 100px;
+    transition: width 0.4s ease;
+    width: 0%;
+    box-shadow: 0 0 10px rgba(232, 184, 75, 0.5);
+  }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .day-track {
+    position: relative;
+    padding-left: 24px;
+  }
+
+  .day-track::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: repeating-linear-gradient(to bottom, var(--line) 0, var(--line) 6px, transparent 6px, transparent 12px);
+  }
+
+  .day-card {
+    position: relative;
+    margin-bottom: 18px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.6);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .day-card:hover {
+    border-color: rgba(232, 184, 75, 0.25);
+  }
+
+  .day-card.today {
+    border-color: rgba(232, 184, 75, 0.4);
+    box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(232, 184, 75, 0.15);
+  }
+
+  .day-card::before {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: 24px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 2px solid var(--muted);
+  }
+
+  .day-card.exam-day::before {
+    background: var(--coral);
+    border-color: var(--coral);
+    box-shadow: 0 0 10px var(--coral);
+  }
+
+  .day-card.today::before {
+    background: var(--lime);
+    border-color: var(--lime);
+    box-shadow: 0 0 10px var(--lime);
+  }
+
+  .day-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .day-title-group {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .day-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .day-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .exam-tag {
+    background: rgba(217,117,107,0.15);
+    color: var(--coral);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+
+  .day-hours {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .session {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .session:first-of-type { border-top: none; padding-top: 0; }
+
+  .session input[type="checkbox"] {
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--lime);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .session-body { flex: 1; }
+
+  .session.checked .session-topic,
+  .session.checked .session-focus {
+    text-decoration: line-through;
+    opacity: 0.45;
+  }
+
+  .session-top-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 3px;
+  }
+
+  .session-topic {
+    font-weight: 600;
+    font-size: 14.5px;
+  }
+
+  .conf-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    text-transform: uppercase;
+  }
+
+  .conf-pill.weak { background: rgba(217,117,107,0.15); color: var(--coral); }
+  .conf-pill.medium { background: rgba(217,164,65,0.15); color: var(--amber); }
+  .conf-pill.strong { background: rgba(143,174,139,0.15); color: var(--mint); }
+
+  .session-hours {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .session-focus {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .results-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  .ghost-btn {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--paper);
+    padding: 11px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s ease;
+  }
+
+  .ghost-btn:hover {
+    border-color: var(--lime);
+    background: rgba(232, 184, 75, 0.06);
+  }
+
+  /* Loading state */
+  .loading-state {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin-top: 16px;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--line);
+    border-top-color: var(--lime);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media print {
+    header.top, .card, .results-actions, .progress-wrap { display: none !important; }
+    body { background: white; color: black; }
+    .day-card { border: 1px solid #ccc; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="dot"></span> StudySprint</div>
+  <div class="top-meta" id="todayLabel"></div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="eyebrow">⚡ Built for exam season</span>
+    <h1>Your syllabus,<br><span>turned into a plan</span> you'll actually follow.</h1>
+    <p class="sub">Tell StudySprint what's left to cover and how confident you feel about each topic. It lays out a day-by-day route to your exam — weak spots get more laps, strong ones get a quick check-in.</p>
+  </section>
+
+  <div class="card">
+    <h2>Set up your sprint</h2>
+    <p class="hint">Add every topic left to cover, then rate how confident you feel right now.</p>
+
+    <div class="field-row">
+      <div>
+        <label for="examDate">Exam date</label>
+        <input type="date" id="examDate" />
+      </div>
+      <div>
+        <label for="hoursPerDay">Study hours available per day</label>
+        <input type="number" id="hoursPerDay" min="0.5" max="14" step="0.5" value="3" />
+      </div>
+    </div>
+
+    <div class="topics-head">
+      <label>Topics to cover</label>
+      <button class="add-btn" id="addTopicBtn" type="button">+ Add topic</button>
+    </div>
+    <div id="topicsList"></div>
+
+    <button class="generate-btn" id="generateBtn" type="button">Generate my sprint plan →</button>
+    <div class="loading-state" id="loadingState"><span class="spinner"></span> Mapping out your route to exam day…</div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section id="results">
+    <div class="results-head">
+      <h2>Your route to exam day</h2>
+      <div class="progress-label" id="progressLabel">0 / 0 sessions done</div>
+    </div>
+    <p class="summary-line" id="summaryLine"></p>
+
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="day-track" id="dayTrack"></div>
+
+    <div class="results-actions">
+      <button class="ghost-btn" id="printBtn" type="button">Export / Print plan</button>
+      <button class="ghost-btn" id="regenBtn" type="button">Start a new sprint</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const API_URL = "http://localhost:5050/api/generate-plan";
+
+let topicId = 0;
+const topicsList = document.getElementById("topicsList");
+
+document.getElementById("todayLabel").textContent = new Date().toLocaleDateString(undefined, { weekday: "short", year: "numeric", month: "short", day: "numeric" });
+
+function addTopicRow(name = "") {
+  topicId++;
+  const row = document.createElement("div");
+  row.className = "topic-row";
+  row.dataset.id = topicId;
+  row.innerHTML = `
+    <input type="text" placeholder="e.g. Thermodynamics" class="topic-name" value="${name}" />
+    <div class="conf-select">
+      <button type="button" class="conf-btn" data-level="weak">weak</button>
+      <button type="button" class="conf-btn" data-level="medium" data-active="true">medium</button>
+      <button type="button" class="conf-btn" data-level="strong">strong</button>
+    </div>
+    <button type="button" class="remove-btn" title="Remove">×</button>
+  `;
+  row.querySelectorAll(".conf-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      row.querySelectorAll(".conf-btn").forEach(b => b.removeAttribute("data-active"));
+      btn.setAttribute("data-active", "true");
+    });
+  });
+  row.querySelector(".remove-btn").addEventListener("click", () => row.remove());
+  topicsList.appendChild(row);
+}
+
+document.getElementById("addTopicBtn").addEventListener("click", () => addTopicRow());
+
+// seed with 3 starter rows
+addTopicRow();
+addTopicRow();
+addTopicRow();
+
+function collectTopics() {
+  const rows = [...topicsList.querySelectorAll(".topic-row")];
+  return rows
+    .map(row => {
+      const name = row.querySelector(".topic-name").value.trim();
+      const activeBtn = row.querySelector('.conf-btn[data-active="true"]');
+      const confidence = activeBtn ? activeBtn.dataset.level : "medium";
+      return name ? { name, confidence } : null;
+    })
+    .filter(Boolean);
+}
+
+const generateBtn = document.getElementById("generateBtn");
+const loadingState = document.getElementById("loadingState");
+const errorBox = document.getElementById("errorBox");
+const resultsSection = document.getElementById("results");
+
+let sessionState = {}; // sessionKey -> checked bool, persisted in localStorage
+
+function loadSessionState() {
+  try {
+    return JSON.parse(localStorage.getItem("studysprint_checks") || "{}");
+  } catch { return {}; }
+}
+
+function saveSessionState() {
+  localStorage.setItem("studysprint_checks", JSON.stringify(sessionState));
+}
+
+generateBtn.addEventListener("click", async () => {
+  const examDate = document.getElementById("examDate").value;
+  const hoursPerDay = parseFloat(document.getElementById("hoursPerDay").value);
+  const topics = collectTopics();
+
+  errorBox.style.display = "none";
+
+  if (!examDate) { showError("Pick your exam date first."); return; }
+  if (topics.length === 0) { showError("Add at least one topic."); return; }
+
+  generateBtn.disabled = true;
+  loadingState.style.display = "flex";
+  resultsSection.style.display = "none";
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ examDate, hoursPerDay, topics }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to generate plan.");
+
+    sessionState = loadSessionState();
+    renderPlan(data);
+  } catch (err) {
+    showError(err.message || "Something went wrong. Is the backend running?");
+  } finally {
+    generateBtn.disabled = false;
+    loadingState.style.display = "none";
+  }
+});
+
+function showError(msg) {
+  errorBox.textContent = msg;
+  errorBox.style.display = "block";
+}
+
+function renderPlan(plan) {
+  const track = document.getElementById("dayTrack");
+  track.innerHTML = "";
+  document.getElementById("summaryLine").textContent = plan.summary || "";
+
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  plan.days.forEach((day, dIdx) => {
+    const card = document.createElement("div");
+    card.className = "day-card";
+    if (day.isExamDay) card.classList.add("exam-day");
+    if (day.date === todayStr) card.classList.add("today");
+
+    const sessionsHtml = (day.sessions || []).map((s, sIdx) => {
+      const key = `${day.date}__${dIdx}_${sIdx}__${s.topic}`;
+      const checked = !!sessionState[key];
+      return `
+        <div class="session ${checked ? 'checked' : ''}" data-key="${key}">
+          <input type="checkbox" ${checked ? "checked" : ""} />
+          <div class="session-body">
+            <div class="session-top-row">
+              <span class="session-topic">${escapeHtml(s.topic)}</span>
+              <span class="conf-pill ${s.confidence}">${s.confidence}</span>
+              <span class="session-hours">${s.hours}h</span>
+            </div>
+            <div class="session-focus">${escapeHtml(s.focus || "")}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    card.innerHTML = `
+      <div class="day-head">
+        <div class="day-title-group">
+          <span class="day-label">${escapeHtml(day.label)}</span>
+          <span class="day-date mono">${day.date}</span>
+          ${day.isExamDay ? '<span class="exam-tag">EXAM DAY</span>' : ''}
+        </div>
+        <span class="day-hours mono">${day.totalHours}h planned</span>
+      </div>
+      ${sessionsHtml}
+    `;
+
+    track.appendChild(card);
+  });
+
+  track.querySelectorAll(".session input[type=checkbox]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const sessionEl = cb.closest(".session");
+      const key = sessionEl.dataset.key;
+      sessionState[key] = cb.checked;
+      sessionEl.classList.toggle("checked", cb.checked);
+      saveSessionState();
+      updateProgress();
+    });
+  });
+
+  resultsSection.style.display = "block";
+  updateProgress();
+  resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function updateProgress() {
+  const boxes = [...document.querySelectorAll(".session input[type=checkbox]")];
+  const done = boxes.filter(b => b.checked).length;
+  const total = boxes.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressLabel").textContent = `${done} / ${total} sessions done`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+document.getElementById("regenBtn").addEventListener("click", () => {
+  resultsSection.style.display = "none";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+</script>
+
+</body>
+</html>
