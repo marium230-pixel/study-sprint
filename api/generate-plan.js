@@ -1,7 +1,7 @@
 // Vercel serverless function — same logic as the old Express route,
 // just exported as a single handler instead of an app.post().
 
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = "gemini-2.5-flash";
 
 function buildPrompt({ examDate, hoursPerDay, topics }) {
   const today = new Date().toISOString().split("T")[0];
